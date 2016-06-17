@@ -1,6 +1,9 @@
 BASE_NAME=applicative-functor
 
-all: $(BASE_NAME).html $(BASE_NAME).pdf $(BASE_NAME).xml $(BASE_NAME).docx $(BASE_NAME).epub slides.html
+all: $(BASE_NAME).html $(BASE_NAME).pdf $(BASE_NAME).xml $(BASE_NAME).docx $(BASE_NAME).epub slides.html project.zip
+
+project.zip: prepare
+	zip -r output/project.zip project
 
 slides.html: prepare
 	pandoc -t slidy -s slides.md -o output/slides.html
