@@ -1,0 +1,7 @@
+= A.F. - A Test
+Manuel Paccagnella <manuel.paccagnella@warda.it>
+2016-06-x
+:toc:
+:source-highlighter: pygments
+:icons: font
+
