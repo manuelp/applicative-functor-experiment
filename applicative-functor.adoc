@@ -1,6 +1,6 @@
 = Applicative Functor in Java: An Experiment
 Manuel Paccagnella <manuel.paccagnella@warda.it>
-Rev:1, 2016-06-17
+Rev:2, 2016-06-17
 :toc:
 :source-highlighter: pygments
 :icons: font
@@ -74,7 +74,7 @@ data Child = Child String deriving (Eq, Show)
 ----
 +
 * Names can be random https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID]s.
-* The number of children for every `reproduce` call is a random number between 0 and 6.
+* The number of children created for every `reproduce` call is 2.
 * If typed in an IDE, the code *must compile*. If this is the case, it's better to setup the infrastructure (project, compilation, dependencies, etc.) beforehand, or at least just before the actual implementation time-box. 
 
 ==  Solution using an applicative functor
@@ -88,7 +88,9 @@ private static List<Child> incrementPopulation(List<Man> men, List<Woman> women)
 
 private static F<Man, F<Woman, List<Child>>> reproduce() {
   return man -> woman -> 
-    range(0, randomNumberBetween(0, 6))+1).map(n -> UUID.randomUUID()).map(UUID::toString);    
+    list(UUID.randomUUID(), UUID.randomUUID())
+    .map(UUID::toString)
+    .map(Child::child);
 }
 ----
 
@@ -96,6 +98,10 @@ private static F<Man, F<Woman, List<Child>>> reproduce() {
 
 |===
 |Revision | Date | Changes 
+
+| 2
+| 2016-06-17
+| Simplified rules.
 
 | 1
 | 2016-06-17

@@ -20,10 +20,7 @@ reproduce :: Man -> Woman -> [Child]
 	data Child = Child String deriving (Eq, Show)
 	```
 * Names can be random [UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier)
-* The number of children for every `reproduce` call is a random number between 0 and 6
-	```java
-	new Random().nextInt(6);
-	```
+* The number of children created for every `reproduce` call is 2
 * Code should compile
 
 # Solution
@@ -36,6 +33,8 @@ private static List<Child> incrementPopulation(List<Man> men, List<Woman> women)
 
 private static F<Man, F<Woman, List<Child>>> reproduce() {
   return man -> woman -> 
-    range(0, randomNumberBetween(0, 6))+1).map(n -> UUID.randomUUID()).map(UUID::toString);    
+    list(UUID.randomUUID(), UUID.randomUUID())
+    .map(UUID::toString)
+    .map(Child::child);
 }
 ```

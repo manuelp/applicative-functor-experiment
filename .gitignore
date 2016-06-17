@@ -1,2 +1,6 @@
 *.~undo-tree~
 /output
+project/.idea
+project/.gradle
+project/.java-version
+.#*
