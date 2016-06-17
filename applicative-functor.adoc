@@ -1,14 +1,24 @@
 = Applicative Functor in Java: An Experiment
 Manuel Paccagnella <manuel.paccagnella@warda.it>
-2016-06-x
+Rev:1, 2016-06-17
 :toc:
 :source-highlighter: pygments
 :icons: font
 
 == Abstract
-...
+This document describes an experiment to test the clarityfootnote:[Clarity is inherently _subjective_, as the results of this experiment.] of the type class https://wiki.haskell.org/Typeclassopedia#Applicative[applicative functor] as used in functional Java 8+ code.
 
 == Experiment setup
+
+Prerequisites:
+
+* A test subject (can be a single developer or a group).
+    * It helps if the test subject(s) have a basic understanding of Java 8 and of functional programming.
+* A couple of slides to explain the problem and the rules.
+* Functional Java http://www.functionaljava.org/javadoc/4.5/functionaljava/index.html[API documentation]
+* (Optional) a ready to use project template.
+
+The experiment has the following steps:
 
 . Explain the problem (with types)
 . Ask to implement a solution
@@ -81,3 +91,14 @@ private static F<Man, F<Woman, List<Child>>> reproduce() {
     range(0, randomNumberBetween(0, 6))+1).map(n -> UUID.randomUUID()).map(UUID::toString);    
 }
 ----
+
+== Revisions
+
+|===
+|Revision | Date | Changes 
+
+| 1
+| 2016-06-17
+| First version.
+
+|===
