@@ -1,94 +1,73 @@
-= A.F. - A Test
+= Applicative Functor in Java: An Experiment
 Manuel Paccagnella <manuel.paccagnella@warda.it>
 2016-06-x
 :toc:
 :source-highlighter: pygments
 :icons: font
 
-== Setup
+== Abstract
+...
 
-. Explain problem (with types)
-. Ask to try to implement a solution
-. Show the A.F. solution, and let him work it out how it works (time boxed, with FJ API documentation ready)
-. Write down results of this anedoctal experiment
+== Experiment setup
 
-'''
+. Explain the problem (with types)
+. Ask to implement a solution
+. Show the solution that uses the applicative functor without explaining anything (don't mention the applicative functor!), and let the test subject read the code and understand how it works. This phase must be time-boxed, and the subject must have http://www.functionaljava.org/javadoc/4.5/functionaljava/index.html[API documentation] available.
 
-Original code:
+== Problem description
 
-[source,java]
-----
-private static List<DictionaryEntry> readDictionaryEntries(Option<Path> directory, String filename,
-    List<DataPropertyId> ids) {
-  Option<File> csvFile = directory.map(p -> p.resolve(filename)).map(Path::toFile);
-  log.debug("File: {}, exists: {}", csvFile.toString(), csvFile.some().exists());
-  if (csvFile.isNone())
-    return list();
-
-  log.info("Processing file: {}", csvFile.some().getName());
-  String path = csvFile.some().getPath();
-  List<Map<String, String>> rows = readCsv(path);
-  log.trace("Rows: {}", rows);
-
-  List<F<Map<String, String>, List<DictionaryEntry>>> readEntries = ids.map(toDictionaryEntries());
-  return join(rows.apply(readEntries));
-}
-
-private static F<DataPropertyId, F<Map<String, String>, List<DictionaryEntry>>> toDictionaryEntries() {
-  return dataPropertyId -> m -> {
-    Option<P2<String, String>> codeCell = HashMap.fromMap(m).toList().filter(e -> e._1().matches(".*[Cc]ode\\s*"))
-        .headOption();
-    if (codeCell.isNone())
-      throw new RuntimeException("There is no valid code cell in the input file!");
-    final String code = codeCell.some()._2();
-
-    List<P2<String, String>> translations = HashMap.fromMap(m).toList()
-        .filter(e -> e._1().matches(".*[Dd]esc(rizione|ription)*\\s*[A-Z]{2}"));
-    return translations.map(p -> {
-      String language = p._1().substring(p._1().length() - 2).toLowerCase();
-      String value = p._2();
-      return dictionaryEntry(dataPropertyId, value, language, code);
-    });
-  };
-}
-----
-
-We must simplify it to highlight its essence, and to remove any reference to the original requirements.
-
-[source,haskell]
-----
-readDictionaryEntries :: [DataPropertyId] -> [[(String, String)]] -> [DictionaryEntry]
--- Using:
-toDictionaryEntries :: DataPropertyId -> [(String, String)] -> [DictionaryEntry] 
-----
-
-Generalized:
-
-[source,haskell]
-----
--- We need:
-f :: [A] -> [B] -> [C]
--- Using:
-g :: A -> B -> [C]
-----
-
-In other words, `f` has to apply `g` to the https://en.wikipedia.org/wiki/Cartesian_product[cartesian product] of the input ``A``s and ``B``s.
-
-Example: 
+We have to write a _function_ to increment a population:
 
 [source,haskell]
 ----
 incrementPopulation :: [Man] -> [Woman] -> [Child]
+----
+
+To implement this function, we can use another one:
+
+[source,haskell]
+----
 reproduce :: Man -> Woman -> [Child]
 ----
 
-For simplicity, rules of the game:
+.General problem
+****
+This problem is a specific _instance_ of a more general one:
 
-* Number of children for every `reproduce` call is random between 0 and 6.
-* Every child name is a random https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID].
-* Can use Java 8+ and http://www.functionaljava.org/[Functional Java].
+[source,haskell]
+----
+-- We need:
+f :: [a] -> [b] -> [c]
+-- Using:
+g :: a -> b -> [c]
+----
 
-== A.F. solution
+In other words, `f` has to apply `g` to the https://en.wikipedia.org/wiki/Cartesian_product[cartesian product] of the input `a` and `b` values.
+****
+
+== Rules of the game
+
+The test subject has 15-20 minutes to implement a solution to this problem. The rules are:
+
+* The solution must be written in Java. Better if in Java 8+.
+* Can be used the library http://www.functionaljava.org/[Functional Java].
+
+To simplify the code:
+
+* `Man`, `Woman` and `Child` types can be defined by a simple `String` (their name):
++
+[source,haskell]
+----
+data Man = Man String deriving (Eq, Show)
+data Woman = Woman String deriving (Eq, Show)
+data Child = Child String deriving (Eq, Show)
+----
++
+* Names can be random https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID]s.
+* The number of children for every `reproduce` call is a random number between 0 and 6.
+* If typed in an IDE, the code *must compile*. If this is the case, it's better to setup the infrastructure (project, compilation, dependencies, etc.) beforehand, or at least just before the actual implementation time-box. 
+
+==  Solution using an applicative functor
 
 [source,java]
 ----
