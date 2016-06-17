@@ -5,3 +5,100 @@ Manuel Paccagnella <manuel.paccagnella@warda.it>
 :source-highlighter: pygments
 :icons: font
 
+== Setup
+
+. Explain problem (with types)
+. Ask to try to implement a solution
+. Show the A.F. solution, and let him work it out how it works (time boxed, with FJ API documentation ready)
+. Write down results of this anedoctal experiment
+
+'''
+
+Original code:
+
+[source,java]
+----
+private static List<DictionaryEntry> readDictionaryEntries(Option<Path> directory, String filename,
+    List<DataPropertyId> ids) {
+  Option<File> csvFile = directory.map(p -> p.resolve(filename)).map(Path::toFile);
+  log.debug("File: {}, exists: {}", csvFile.toString(), csvFile.some().exists());
+  if (csvFile.isNone())
+    return list();
+
+  log.info("Processing file: {}", csvFile.some().getName());
+  String path = csvFile.some().getPath();
+  List<Map<String, String>> rows = readCsv(path);
+  log.trace("Rows: {}", rows);
+
+  List<F<Map<String, String>, List<DictionaryEntry>>> readEntries = ids.map(toDictionaryEntries());
+  return join(rows.apply(readEntries));
+}
+
+private static F<DataPropertyId, F<Map<String, String>, List<DictionaryEntry>>> toDictionaryEntries() {
+  return dataPropertyId -> m -> {
+    Option<P2<String, String>> codeCell = HashMap.fromMap(m).toList().filter(e -> e._1().matches(".*[Cc]ode\\s*"))
+        .headOption();
+    if (codeCell.isNone())
+      throw new RuntimeException("There is no valid code cell in the input file!");
+    final String code = codeCell.some()._2();
+
+    List<P2<String, String>> translations = HashMap.fromMap(m).toList()
+        .filter(e -> e._1().matches(".*[Dd]esc(rizione|ription)*\\s*[A-Z]{2}"));
+    return translations.map(p -> {
+      String language = p._1().substring(p._1().length() - 2).toLowerCase();
+      String value = p._2();
+      return dictionaryEntry(dataPropertyId, value, language, code);
+    });
+  };
+}
+----
+
+We must simplify it to highlight its essence, and to remove any reference to the original requirements.
+
+[source,haskell]
+----
+readDictionaryEntries :: [DataPropertyId] -> [[(String, String)]] -> [DictionaryEntry]
+-- Using:
+toDictionaryEntries :: DataPropertyId -> [(String, String)] -> [DictionaryEntry] 
+----
+
+Generalized:
+
+[source,haskell]
+----
+-- We need:
+f :: [A] -> [B] -> [C]
+-- Using:
+g :: A -> B -> [C]
+----
+
+In other words, `f` has to apply `g` to the https://en.wikipedia.org/wiki/Cartesian_product[cartesian product] of the input ``A``s and ``B``s.
+
+Example: 
+
+[source,haskell]
+----
+incrementPopulation :: [Man] -> [Woman] -> [Child]
+reproduce :: Man -> Woman -> [Child]
+----
+
+For simplicity, rules of the game:
+
+* Number of children for every `reproduce` call is random between 0 and 6.
+* Every child name is a random https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID].
+* Can use Java 8+ and http://www.functionaljava.org/[Functional Java].
+
+== A.F. solution
+
+[source,java]
+----
+private static List<Child> incrementPopulation(List<Man> men, List<Woman> women) {
+  List<F<Woman, List<Child>>> fertileMen = men.map(reproduce());
+  return List.join(women.apply(fertileMen));
+}
+
+private static F<Man, F<Woman, List<Child>>> reproduce() {
+  return man -> woman -> 
+    range(0, randomNumberBetween(0, 6))+1).map(n -> UUID.randomUUID()).map(UUID::toString);    
+}
+----
