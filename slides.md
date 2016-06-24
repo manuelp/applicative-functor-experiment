@@ -9,6 +9,19 @@ incrementPopulation :: [Man] -> [Woman] -> [Child]
 reproduce :: Man -> Woman -> [Child]
 ```
 
+Since this is a promiscuous population, _every man can mate with every woman_.
+
+This is an example of a more generale problem:
+
+```haskell
+-- We need:
+f :: [a] -> [b] -> [c]
+-- Using:
+g :: a -> b -> [c]
+```
+
+Where `g` is applied to the cartesian product of all input `[a]` and `[b]`.
+
 # Rules
 
 * Java (8+ is better)

@@ -1,6 +1,6 @@
 = Applicative Functor in Java: An Experiment
 Manuel Paccagnella <manuel.paccagnella@warda.it>
-Rev:2, 2016-06-17
+Rev:3, 2016-06-24
 :toc:
 :source-highlighter: pygments
 :icons: font
@@ -39,6 +39,8 @@ To implement this function, we can use another one:
 ----
 reproduce :: Man -> Woman -> [Child]
 ----
+
+Since this is a promiscuous population, _every man can mate with every woman_.
 
 .General problem
 ****
@@ -98,6 +100,10 @@ private static F<Man, F<Woman, List<Child>>> reproduce() {
 
 |===
 |Revision | Date | Changes 
+
+| 3
+| 2016-06-24
+| Clarified reproduction rules.
 
 | 2
 | 2016-06-17
